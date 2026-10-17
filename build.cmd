@@ -55,7 +55,7 @@ rc /nologo /fo %OUT%\foo_slowed_reverb.res src\foo_slowed_reverb.rc || exit /b 1
 rem Columns UI SDK (in the SDK folder as columns_ui-sdk), built into a static library so only what is used gets linked.
 if not exist %OUT%\cui mkdir %OUT%\cui
 cl /nologo /c %CLX% /O2 /EHsc /std:c++20 /MD /utf-8 /W0 /DNDEBUG /DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS %INC% /Fo"%OUT%\cui\\" "%SDK%\columns_ui-sdk\*.cpp" >nul || exit /b 1
-lib /nologo /OUT:%OUT%\columns_ui-sdk.lib %OUT%\cui\*.obj || exit /b 1
+lib /nologo %LINKX% /OUT:%OUT%\columns_ui-sdk.lib %OUT%\cui\*.obj || exit /b 1
 cl /nologo /c %CLX% /O2 /EHsc /std:c++20 /MD /utf-8 /W3 /DNDEBUG /DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS %INC% /Fo"%OUT%\\" src\main.cpp src\dsp_slowed_reverb.cpp src\export.cpp src\live.cpp src\panel.cpp src\theme.cpp src\sliders.cpp src\presets.cpp || exit /b 1
 link /nologo /DLL /LTCG %LINKX% /OUT:%OUT%\foo_slowed_reverb.dll %OUT%\main.obj %OUT%\dsp_slowed_reverb.obj %OUT%\export.obj %OUT%\live.obj %OUT%\panel.obj %OUT%\theme.obj %OUT%\sliders.obj %OUT%\presets.obj %OUT%\foo_slowed_reverb.res ^
   "%SDK%\foobar2000\foobar2000_component_client\%LIBDIR%\foobar2000_component_client.lib" ^
