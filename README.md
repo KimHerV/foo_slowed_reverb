@@ -1,8 +1,36 @@
-# Slowed & Reverb for foobar2000
+<h1 align="center">Slowed &amp; Reverb for foobar2000</h1>
 
-A foobar2000 component that adds the Slowed & Reverb effect to playback, with a one-click on/off switch, a Layout panel, and export to audio files. No more round-trips through a video editor just to make a slowed version of a song.
+<p align="center">
+  The Slowed &amp; Reverb sound on your own music library: live while it plays, and exported to files with tags and cover art.
+</p>
+
+<p align="center">
+  <a href="https://github.com/KimHerV/foo_slowed_reverb/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/KimHerV/foo_slowed_reverb"></a>
+  <a href="https://github.com/KimHerV/foo_slowed_reverb/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/KimHerV/foo_slowed_reverb/total"></a>
+  <a href="https://github.com/KimHerV/foo_slowed_reverb/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/KimHerV/foo_slowed_reverb/build.yml?branch=main"></a>
+  <img alt="foobar2000 v2.0+" src="https://img.shields.io/badge/foobar2000-v2.0%2B-blue">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/KimHerV/foo_slowed_reverb"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/KimHerV/foo_slowed_reverb/releases/latest/download/foo_slowed_reverb.fb2k-component"><img alt="Download" src="https://img.shields.io/github/v/release/KimHerV/foo_slowed_reverb?style=for-the-badge&label=Download&color=2ea44f"></a>
+  <br>
+  <sub>Then in foobar2000: Preferences &gt; Components &gt; Install..., pick the file, Apply.</sub>
+</p>
 
 ![foobar2000 with the Slowed & Reverb panel](docs/main.png)
+
+## Why a dedicated component
+
+You can already get close by chaining a speed DSP and a reverb DSP. This component puts the whole job in one place:
+
+| | Chaining general-purpose DSPs | Slowed & Reverb |
+|---|---|---|
+| Setup | Add two effects to the DSP chain and tune both | Add one effect, or pick a preset |
+| On/off | Edit the DSP chain or switch chain presets | One checkbox, menu item or shortcut; the chain stays as it is |
+| Adjusting while listening | Open the DSP Manager | A panel in your layout, Default UI or Columns UI |
+| Reverb made for this sound | General reverb settings | Pre-delay, low cut and high cut on the reverb, presets tuned for slowed music |
+| Making files | Converter with a DSP chain, then edit the titles | Export selected tracks, titles marked "(Slowed &amp; Reverb)", tags and cover art kept |
 
 ## Features
 
@@ -42,13 +70,16 @@ A foobar2000 component that adds the Slowed & Reverb effect to playback, with a 
 ## Requirements
 
 - foobar2000 v2.0 or newer. x86, x64 and ARM64EC builds are included; foobar2000 for ARM uses the native ARM64EC build.
-- [ffmpeg](https://ffmpeg.org/) for MP3/FLAC/OGG/M4A export. WAV export works without it.
+- [ffmpeg](https://ffmpeg.org/) for MP3/FLAC/OGG/M4A export.
   - The component finds ffmpeg on `PATH` or a WinGet install (`winget install ffmpeg`).
   - You can also set its path in the export dialog.
 
+> [!TIP]
+> No ffmpeg? Export to WAV, the default format. It needs nothing else and keeps the tags and cover art.
+
 ## Install
 
-1. Download `foo_slowed_reverb-<version>.fb2k-component` from the [Releases](../../releases) page.
+1. [Download the latest version](https://github.com/KimHerV/foo_slowed_reverb/releases/latest/download/foo_slowed_reverb.fb2k-component), or pick one from the [Releases](https://github.com/KimHerV/foo_slowed_reverb/releases) page.
 2. In foobar2000, open Preferences > Components > Install..., pick the file, then click Apply and restart.
 
 ## Usage
@@ -85,6 +116,9 @@ A foobar2000 component that adds the Slowed & Reverb effect to playback, with a 
 
 ## Building
 
+<details>
+<summary>Build it yourself (Visual Studio, foobar2000 SDK, Columns UI SDK)</summary>
+
 Requirements:
 - Visual Studio 2022 with the C++ desktop workload. The optional native ARM64EC build (`build.cmd arm64ec`) needs the "MSVC v143 ARM64/ARM64EC build tools" component. It goes in the package's `arm64ec\` folder, which foobar2000 for ARM prefers over `x64\`.
 - The [foobar2000 SDK](https://www.foobar2000.org/SDK) (SDK-2026-10-01).
@@ -109,6 +143,8 @@ CI (`.github/workflows/build.yml`) downloads both SDKs and builds the libraries 
 The README screenshots are taken with `tools\screenshots.ps1`; [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) explains the setup.
 
 The DSP core (`src/slowed_reverb_core.h`) has no foobar2000 dependencies. Test it with `test\build_test.cmd` followed by `test\test_core.exe`.
+
+</details>
 
 ## Credits
 

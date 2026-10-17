@@ -100,4 +100,5 @@ jobs:
             if ($in) { $notes += $l }
           }
           $notes -join "`n" | Out-File -Encoding utf8 notes.md
-          gh release create $tag '${{ steps.pkg.outputs.name }}' --title $tag --notes-file notes.md
+          # The same package also under a fixed name, for the README's releases/latest/download/... link.
+          gh release create $tag '${{ steps.pkg.outputs.name }}' build\foo_slowed_reverb.fb2k-component --title $tag --notes-file notes.md
