@@ -17,6 +17,6 @@ First public release.
 - **Panel** for the Default UI and **Columns UI** (also usable in the Columns UI toolbar area) with the switch, presets and sliders ("Reverb shape" folds away); a one-row compact layout; also available as a popup from View > Slowed & Reverb.
 - Native Windows controls that follow dark/light mode (Columns UI's own dark mode setting under Columns UI). In dark mode the sliders are painted in the accent color: foobar2000's highlight color if changed, otherwise the Windows accent color; a custom color can be chosen.
 - **Export** from the track context menu (Slowed & Reverb > Export...) or the panel's "Export selected tracks..." button to 32-bit float WAV (the default, no extra software needed) or MP3, FLAC, OGG, M4A (via ffmpeg), with tags and cover art copied (WAV included), an editable title suffix, and automatic clipping protection.
-- x86 and x64 builds in one `.fb2k-component`. The x64 build also runs on foobar2000 for ARM.
+- x86, x64 and ARM64EC builds in one `.fb2k-component`. foobar2000 for ARM uses the native ARM64EC build.
 
 [1.0.0]: ../../releases/tag/v1.0.0

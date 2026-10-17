@@ -41,7 +41,7 @@ A foobar2000 component that adds the Slowed & Reverb effect to playback, with a 
 
 ## Requirements
 
-- foobar2000 v2.0 or newer. x86 and x64 builds are included, and the x64 build also runs on foobar2000 for ARM.
+- foobar2000 v2.0 or newer. x86, x64 and ARM64EC builds are included; foobar2000 for ARM uses the native ARM64EC build.
 - [ffmpeg](https://ffmpeg.org/) for MP3/FLAC/OGG/M4A export. WAV export works without it.
   - The component finds ffmpeg on `PATH` or a WinGet install (`winget install ffmpeg`).
   - You can also set its path in the export dialog.
