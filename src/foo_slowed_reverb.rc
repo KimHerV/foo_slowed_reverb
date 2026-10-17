@@ -1,0 +1,138 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 KimHerV
+
+#pragma code_page(65001)
+#include <windows.h>
+#include <commctrl.h>
+#include "resource.h"
+#include "version.h"
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     SR_VERSION_MAJOR, SR_VERSION_MINOR, SR_VERSION_PATCH, 0
+PRODUCTVERSION  SR_VERSION_MAJOR, SR_VERSION_MINOR, SR_VERSION_PATCH, 0
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+FILEFLAGS       0
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_DLL
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName",      SR_AUTHOR
+            VALUE "FileDescription",  "Slowed & Reverb for foobar2000"
+            VALUE "FileVersion",      SR_VERSION_STR
+            VALUE "InternalName",     "foo_slowed_reverb"
+            VALUE "LegalCopyright",   "Copyright (c) 2026 " SR_AUTHOR ". MIT License."
+            VALUE "OriginalFilename", "foo_slowed_reverb.dll"
+            VALUE "ProductName",      "Slowed & Reverb"
+            VALUE "ProductVersion",   SR_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END
+
+// One slider row: label, native trackbar (one position per tick) and the value text (double-click to type).
+#define ROW(i, name, y) \
+    LTEXT           name, IDC_SL_LABEL + i, 8, y + 5, 58, 9, SS_NOPREFIX \
+    CONTROL         "", IDC_SL_TRACK + i, TRACKBAR_CLASS, TBS_HORZ | TBS_AUTOTICKS | TBS_BOTTOM | WS_TABSTOP, 66, y, 156, 18 \
+    RTEXT           "", IDC_SL_VALUE + i, 224, y + 5, 90, 9, SS_NOTIFY | SS_NOPREFIX
+
+#define ROWS(y) \
+    ROW(0, "Speed", y) \
+    ROW(1, "Reverb mix", y + 20) \
+    ROW(2, "Room size", y + 40) \
+    ROW(3, "Damping", y + 60) \
+    ROW(4, "Pre-delay", y + 80) \
+    ROW(5, "Low cut", y + 100) \
+    ROW(6, "High cut", y + 120) \
+    ROW(7, "Width", y + 140)
+
+#define PRESET_BAR(x, y) \
+    COMBOBOX        IDC_PRESET, x, y, 112, 200, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP \
+    PUSHBUTTON      "…", IDC_PRESET_MORE, x + 115, y, 18, 14 \
+    PUSHBUTTON      "Save", IDC_PRESET_SAVE, x + 136, y, 38, 14
+
+IDD_DSP DIALOGEX 0, 0, 322, 214
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Slowed & Reverb"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    AUTOCHECKBOX    "Enabled", IDC_ENABLE, 8, 7, 44, 12, WS_TABSTOP
+    PRESET_BAR(140, 6)
+    ROWS(26)
+    DEFPUSHBUTTON   "OK", IDOK, 210, 194, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 264, 194, 50, 14
+END
+
+IDD_EXPORT DIALOGEX 0, 0, 322, 351
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Export with Slowed & Reverb"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    PRESET_BAR(8, 6)
+    PUSHBUTTON      "Use playback settings", IDC_FROM_PLAYBACK, 218, 6, 96, 14
+    ROWS(26)
+
+    LTEXT           "Format", -1, 8, 196, 70, 9
+    COMBOBOX        IDC_FORMAT, 80, 194, 234, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+
+    LTEXT           "Output folder", -1, 8, 215, 70, 9
+    EDITTEXT        IDC_OUTDIR, 80, 213, 210, 13, ES_AUTOHSCROLL
+    PUSHBUTTON      "...", IDC_OUTDIR_BROWSE, 294, 213, 20, 13
+    LTEXT           "Leave empty to save next to the source file.", -1, 80, 228, 234, 9
+
+    LTEXT           "Title suffix", -1, 8, 244, 70, 9
+    EDITTEXT        IDC_SUFFIX, 80, 242, 234, 13, ES_AUTOHSCROLL
+    LTEXT           "Added to the title tag. Leave empty to keep the title as it is.", -1, 80, 257, 234, 9
+
+    LTEXT           "File name", -1, 8, 273, 70, 9
+    EDITTEXT        IDC_PATTERN, 80, 271, 234, 13, ES_AUTOHSCROLL
+    LTEXT           "Title formatting. Put literal symbols like ( ) in 'single quotes'.", -1, 80, 286, 234, 9
+
+    LTEXT           "ffmpeg path", -1, 8, 302, 70, 9
+    EDITTEXT        IDC_FFMPEG, 80, 300, 210, 13, ES_AUTOHSCROLL
+    PUSHBUTTON      "...", IDC_FFMPEG_BROWSE, 294, 300, 20, 13
+    LTEXT           "", IDC_FFMPEG_STATUS, 80, 315, 234, 9, SS_PATHELLIPSIS | SS_NOPREFIX
+
+    DEFPUSHBUTTON   "Export", IDOK, 210, 331, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 264, 331, 50, 14
+END
+
+// Positions are set in code (panel.cpp): it switches between the full and the compact layout and folds "Reverb shape".
+IDD_PANEL DIALOGEX 0, 0, 322, 210
+STYLE DS_SETFONT | DS_CONTROL | WS_CHILD | WS_VISIBLE
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    AUTOCHECKBOX    "Enable Slowed && Reverb", IDC_ENABLE, 8, 7, 96, 12, WS_TABSTOP
+    PRESET_BAR(140, 6)
+    PUSHBUTTON      "All controls...", IDC_MORE, 250, 6, 64, 14
+    ROW(0, "Speed", 26)
+    ROW(1, "Reverb mix", 46)
+    PUSHBUTTON      "Reverb shape", IDC_FOLD, 8, 66, 80, 14
+    PUSHBUTTON      "Export selected tracks...", IDC_EXPORT, 214, 66, 100, 14
+    ROW(2, "Room size", 84)
+    ROW(3, "Damping", 104)
+    ROW(4, "Pre-delay", 124)
+    ROW(5, "Low cut", 144)
+    ROW(6, "High cut", 164)
+    ROW(7, "Width", 184)
+END
+
+IDD_NAME DIALOGEX 0, 0, 230, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Save preset"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    LTEXT           "Name", -1, 8, 11, 30, 9
+    EDITTEXT        IDC_NAME, 40, 9, 182, 13, ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK", IDOK, 118, 40, 50, 14
+    PUSHBUTTON      "Cancel", IDCANCEL, 172, 40, 50, 14
+END

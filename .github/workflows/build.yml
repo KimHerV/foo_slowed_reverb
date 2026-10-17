@@ -1,0 +1,103 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write # creating releases on tag pushes
+
+env:
+  SDK_VERSION: SDK-2026-10-01
+  CUI_SDK_VERSION: 8.1.0
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Core tests
+        shell: cmd
+        run: |
+          call test\build_test.cmd || exit /b 1
+          test\test_core.exe
+
+      - name: Cache foobar2000 SDK
+        id: sdk-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}\sdk
+          key: fb2k-${{ env.SDK_VERSION }}-cui-${{ env.CUI_SDK_VERSION }}-libs-v1
+
+      - name: Download and build foobar2000 SDK
+        if: steps.sdk-cache.outputs.cache-hit != 'true'
+        shell: cmd
+        run: |
+          curl -fsSL -o "%RUNNER_TEMP%\sdk.7z" https://www.foobar2000.org/downloads/%SDK_VERSION%.7z || exit /b 1
+          7z x "%RUNNER_TEMP%\sdk.7z" -o"%RUNNER_TEMP%\sdk" -y >nul || exit /b 1
+          rem Columns UI SDK goes inside the foobar2000 SDK folder, next to pfc (it includes ../pfc/pfc.h).
+          curl -fsSL -o "%RUNNER_TEMP%\cui.zip" https://github.com/reupen/columns_ui-sdk/archive/refs/tags/v%CUI_SDK_VERSION%.zip || exit /b 1
+          7z x "%RUNNER_TEMP%\cui.zip" -o"%RUNNER_TEMP%" -y >nul || exit /b 1
+          move "%RUNNER_TEMP%\columns_ui-sdk-%CUI_SDK_VERSION%" "%RUNNER_TEMP%\sdk\columns_ui-sdk" || exit /b 1
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do set "VS=%%i"
+          call "%VS%\VC\Auxiliary\Build\vcvars64.bat" >nul
+          cd /d "%RUNNER_TEMP%\sdk"
+          for %%A in (Win32 x64) do (
+            for %%P in (pfc\pfc.vcxproj foobar2000\SDK\foobar2000_SDK.vcxproj foobar2000\foobar2000_component_client\foobar2000_component_client.vcxproj) do (
+              msbuild %%P /p:Configuration=Release /p:Platform=%%A /m /nologo /v:minimal || exit /b 1
+            )
+          )
+          rem ARM64EC is optional: the x64 build already runs on foobar2000 for ARM.
+          for %%P in (pfc\pfc.vcxproj foobar2000\SDK\foobar2000_SDK.vcxproj foobar2000\foobar2000_component_client\foobar2000_component_client.vcxproj) do (
+            msbuild %%P /p:Configuration=Release /p:Platform=ARM64EC /m /nologo /v:minimal
+          )
+          exit /b 0
+
+      - name: Build component (ARM64EC, optional)
+        continue-on-error: true
+        shell: cmd
+        run: |
+          set "SDK_DIR=%RUNNER_TEMP%\sdk"
+          call build.cmd arm64ec
+
+      - name: Build component (x86, x64) and package
+        shell: cmd
+        run: |
+          set "SDK_DIR=%RUNNER_TEMP%\sdk"
+          call build.cmd x86 x64
+
+      - name: Name package
+        id: pkg
+        shell: pwsh
+        run: |
+          $ver = (Select-String -Path src\version.h -Pattern 'SR_VERSION_(MAJOR|MINOR|PATCH) (\d+)').Matches | ForEach-Object { $_.Groups[2].Value }
+          $name = "foo_slowed_reverb-$($ver -join '.').fb2k-component"
+          Copy-Item build\foo_slowed_reverb.fb2k-component $name
+          "name=$name" >> $env:GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.pkg.outputs.name }}
+          path: ${{ steps.pkg.outputs.name }}
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Release notes: the matching section of CHANGELOG.md
+          $tag = '${{ github.ref_name }}'
+          $ver = [regex]::Escape($tag.TrimStart('v'))
+          $notes = @(); $in = $false
+          foreach ($l in Get-Content CHANGELOG.md) {
+            if ($l -match '^## \[') { if ($in) { break }; $in = $l -match "^## \[$ver\]"; continue }
+            if ($l -match '^\[.+\]: ') { break }
+            if ($in) { $notes += $l }
+          }
+          $notes -join "`n" | Out-File -Encoding utf8 notes.md
+          gh release create $tag '${{ steps.pkg.outputs.name }}' --title $tag --notes-file notes.md
