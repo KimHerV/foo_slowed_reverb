@@ -20,18 +20,6 @@
 
 ![foobar2000 with the Slowed & Reverb panel](docs/main.png)
 
-## Why a dedicated component
-
-You can already get close by chaining a speed DSP and a reverb DSP. This component puts the whole job in one place:
-
-| | Chaining general-purpose DSPs | Slowed & Reverb |
-|---|---|---|
-| Setup | Add two effects to the DSP chain and tune both | Add one effect, or pick a preset |
-| On/off | Edit the DSP chain or switch chain presets | One checkbox, menu item or shortcut; the chain stays as it is |
-| Adjusting while listening | Open the DSP Manager | A panel in your layout, Default UI or Columns UI |
-| Reverb made for this sound | General reverb settings | Pre-delay, low cut and high cut on the reverb, presets tuned for slowed music |
-| Making files | Converter with a DSP chain, then edit the titles | Export selected tracks, titles marked "(Slowed &amp; Reverb)", tags and cover art kept |
-
 ## Features
 
 - **Slowed:** varispeed slowdown from 50% to 100%. Pitch drops together with tempo, like playing a record slower. The pitch change is shown in semitones next to the value.
