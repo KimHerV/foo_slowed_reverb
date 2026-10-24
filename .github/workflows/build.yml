@@ -100,5 +100,6 @@ jobs:
             if ($in) { $notes += $l }
           }
           $notes -join "`n" | Out-File -Encoding utf8 notes.md
-          # The same package also under a fixed name, for the README's releases/latest/download/... link.
-          gh release create $tag '${{ steps.pkg.outputs.name }}' build\foo_slowed_reverb.fb2k-component --title $tag --notes-file notes.md
+          # One asset under a fixed name, so the README's releases/latest/download/... link always works.
+          # The version is inside the component (shown in Preferences > Components).
+          gh release create $tag build\foo_slowed_reverb.fb2k-component --title $tag --notes-file notes.md

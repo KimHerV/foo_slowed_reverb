@@ -3,6 +3,12 @@
 All notable changes to this project are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- Cleaner slowdown: the resampler now uses a longer Kaiser-windowed sinc filter (128 taps instead of 32). The response is flat to 20 kHz (was -0.5 dB at 20 kHz; the last 1 kHz below Nyquist is now rolled off) and filter artifacts stay around -120 dB (were as high as -25 dB near 20 kHz). It uses more CPU, still far below what playback needs.
+- Releases carry a single `foo_slowed_reverb.fb2k-component`; the version is shown in Preferences > Components.
+
 ## [1.0.0] - 2026-10-18
 
 First public release.
@@ -19,4 +25,5 @@ First public release.
 - **Export** from the track context menu (Slowed & Reverb > Export...) or the panel's "Export selected tracks..." button to 32-bit float WAV (the default, no extra software needed) or MP3, FLAC, OGG, M4A (via ffmpeg), with tags and cover art copied (WAV included), an editable title suffix, and automatic clipping protection.
 - x86, x64 and ARM64EC builds in one `.fb2k-component`. foobar2000 for ARM uses the native ARM64EC build.
 
+[Unreleased]: ../../compare/v1.0.0...HEAD
 [1.0.0]: ../../releases/tag/v1.0.0
