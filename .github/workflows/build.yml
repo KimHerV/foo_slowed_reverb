@@ -19,6 +19,8 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # tags, for the release notes' compare link
 
       - name: Core tests
         shell: cmd
@@ -74,8 +76,14 @@ jobs:
         id: pkg
         shell: pwsh
         run: |
-          $ver = (Select-String -Path src\version.h -Pattern 'SR_VERSION_(MAJOR|MINOR|PATCH) (\d+)').Matches | ForEach-Object { $_.Groups[2].Value }
-          $name = "foo_slowed_reverb-$($ver -join '.').fb2k-component"
+          $ver = ((Select-String -Path src\version.h -Pattern 'SR_VERSION_(MAJOR|MINOR|PATCH) (\d+)').Matches | ForEach-Object { $_.Groups[2].Value }) -join '.'
+          if ('${{ github.ref_type }}' -eq 'tag') {
+            # The tag must match src\version.h (a prerelease suffix such as -beta.1 is allowed).
+            $tagVer = '${{ github.ref_name }}'.TrimStart('v')
+            if ($tagVer -notmatch "^$([regex]::Escape($ver))(-[0-9A-Za-z.]+)?$") { throw "Tag ${{ github.ref_name }} does not match src\version.h ($ver)" }
+            $ver = $tagVer
+          }
+          $name = "foo_slowed_reverb-$ver.fb2k-component"
           Copy-Item build\foo_slowed_reverb.fb2k-component $name
           "name=$name" >> $env:GITHUB_OUTPUT
 
@@ -90,16 +98,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Release notes: the matching section of CHANGELOG.md
+          # Release notes per the KimHerV release convention. The CHANGELOG itself was already checked by the
+          # pre-push hook (conventions folder), so this only assembles: section + SHA-256 + compare link.
           $tag = '${{ github.ref_name }}'
-          $ver = [regex]::Escape($tag.TrimStart('v'))
-          $notes = @(); $in = $false
-          foreach ($l in Get-Content CHANGELOG.md) {
-            if ($l -match '^## \[') { if ($in) { break }; $in = $l -match "^## \[$ver\]"; continue }
-            if ($l -match '^\[.+\]: ') { break }
-            if ($in) { $notes += $l }
-          }
-          $notes -join "`n" | Out-File -Encoding utf8 notes.md
-          # One asset under a fixed name, so the README's releases/latest/download/... link always works.
-          # The version is inside the component (shown in Preferences > Components).
-          gh release create $tag build\foo_slowed_reverb.fb2k-component --title $tag --notes-file notes.md
+          $asset = '${{ steps.pkg.outputs.name }}'
+          $lines = Get-Content CHANGELOG.md -Encoding UTF8
+          $start = [Array]::FindIndex($lines, [Predicate[string]] { param($l) $l -match ('^#### ' + [regex]::Escape($tag) + ' \(\d{4}-\d{2}-\d{2}\)') })
+          if ($start -lt 0) { throw "CHANGELOG.md has no dated '#### $tag (YYYY-MM-DD)' section" }
+          $section = @(); for ($i = $start + 1; $i -lt $lines.Count -and $lines[$i] -notmatch '^#### '; $i++) { $section += $lines[$i] }
+          $hash = (Get-FileHash $asset -Algorithm SHA256).Hash.ToLowerInvariant()
+          $prev = if ($tag -like '*-*') { git describe --tags --abbrev=0 "$tag^" 2>$null } else { git describe --tags --abbrev=0 --exclude '*-*' "$tag^" 2>$null }
+          $notes = @(($section -join "`n").Trim(), '', '**SHA-256**', '', "    $hash  $asset", '', ('Verify: `Get-FileHash .\' + $asset + ' -Algorithm SHA256`'))
+          if ($prev) { $notes += @('', "**Full Changelog**: [$prev...$tag](https://github.com/${{ github.repository }}/compare/$prev...$tag)") }
+          [IO.File]::WriteAllText("$PWD\notes.md", ($notes -join "`n") + "`n", (New-Object System.Text.UTF8Encoding($false)))
+          # One asset with the version in its name; prerelease tags (with a '-') are marked Pre-release.
+          $flag = if ($tag -like '*-*') { '--prerelease' } else { '--latest' }
+          gh release create $tag $asset --title $tag --notes-file notes.md --verify-tag $flag

@@ -5,15 +5,15 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/KimHerV/foo_slowed_reverb/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/KimHerV/foo_slowed_reverb"></a>
-  <a href="https://github.com/KimHerV/foo_slowed_reverb/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/KimHerV/foo_slowed_reverb/total"></a>
-  <a href="https://github.com/KimHerV/foo_slowed_reverb/actions/workflows/build.yml"><img alt="Build" src="https://img.shields.io/github/actions/workflow/status/KimHerV/foo_slowed_reverb/build.yml?branch=main"></a>
-  <img alt="foobar2000 v2.0+" src="https://img.shields.io/badge/foobar2000-v2.0%2B-blue">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/KimHerV/foo_slowed_reverb"></a>
+  <a href="https://github.com/KimHerV/foo_slowed_reverb/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/KimHerV/foo_slowed_reverb?color=0078D4"></a>
+  <a href="https://github.com/KimHerV/foo_slowed_reverb/releases"><img alt="Total downloads" src="https://img.shields.io/github/downloads/KimHerV/foo_slowed_reverb/total?color=0078D4"></a>
+  <a href="https://github.com/KimHerV/foo_slowed_reverb/actions/workflows/build.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/KimHerV/foo_slowed_reverb/build.yml?branch=main"></a>
+  <img alt="Requires foobar2000 v2.0 or newer" src="https://img.shields.io/badge/foobar2000-v2.0%2B-0078D4">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/KimHerV/foo_slowed_reverb?color=0078D4"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/KimHerV/foo_slowed_reverb/releases/latest/download/foo_slowed_reverb.fb2k-component"><img alt="Download" src="https://img.shields.io/github/v/release/KimHerV/foo_slowed_reverb?style=for-the-badge&label=Download&color=2ea44f"></a>
+  <a href="https://github.com/KimHerV/foo_slowed_reverb/releases/latest"><img alt="Download the latest release" src="https://img.shields.io/badge/Download-latest-0078D4?style=for-the-badge"></a>
   <br>
   <sub>Then in foobar2000: Preferences &gt; Components &gt; Install..., pick the file, Apply.</sub>
 </p>
@@ -67,7 +67,7 @@
 
 ## Install
 
-1. [Download the latest version](https://github.com/KimHerV/foo_slowed_reverb/releases/latest/download/foo_slowed_reverb.fb2k-component), or pick one from the [Releases](https://github.com/KimHerV/foo_slowed_reverb/releases) page.
+1. Download the `.fb2k-component` file from the [latest release](https://github.com/KimHerV/foo_slowed_reverb/releases/latest), or pick an older one from the [Releases](https://github.com/KimHerV/foo_slowed_reverb/releases) page.
 2. In foobar2000, open Preferences > Components > Install..., pick the file, then click Apply and restart.
 
 ## Usage
@@ -136,8 +136,9 @@ The DSP core (`src/slowed_reverb_core.h`) has no foobar2000 dependencies. Test i
 
 ## Credits
 
-- Reverb is based on **Freeverb** by Jezar at Dreampoint (public domain).
-- Built with the foobar2000 SDK by Peter Pawlowski and the Columns UI SDK by Reupen Shah.
+- Jezar at Dreampoint for Freeverb, which the reverb is based on (public domain)
+- Peter Pawlowski for foobar2000 and its SDK
+- Reupen Shah for the Columns UI SDK
 
 ## License
 
