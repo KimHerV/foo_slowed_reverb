@@ -6,7 +6,7 @@
 
 #define SR_VERSION_MAJOR 1
 #define SR_VERSION_MINOR 0
-#define SR_VERSION_PATCH 0
+#define SR_VERSION_PATCH 1
 
 #define SR_STRINGIFY2(x) #x
 #define SR_STRINGIFY(x) SR_STRINGIFY2(x)

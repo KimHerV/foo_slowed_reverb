@@ -1,6 +1,6 @@
 Slowed & Reverb Changelog
 =========================
-#### v1.0.1 (unreleased)
+#### v1.0.1 (2026-10-24)
 - Changed release downloads to one file with the version in its name: `foo_slowed_reverb-X.Y.Z.fb2k-component`
 - Improved slowdown quality: the resampler is flat to 20 kHz and keeps filter artifacts around -120 dB (was -25 dB near 20 kHz)
 - Improved the resampler with a 128-tap Kaiser-windowed filter; it uses more CPU, still far below what playback needs
